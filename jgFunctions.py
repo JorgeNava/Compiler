@@ -42,7 +42,9 @@ def getLexemesAndIdentifiers(filePath):
     return [lexeme for lexeme in lexemes if not (lexeme['value'] == "")]
 
 def getLexemeType(lexeme):
-  if lexeme in compilerLexemes["PR"]:
+  if lexeme == "break":
+    return "break"
+  elif lexeme in compilerLexemes["PR"]:
     return "rw"
   elif lexeme in compilerLexemes["op"]:
     return "op"
@@ -50,6 +52,10 @@ def getLexemeType(lexeme):
     return "num"
   elif lexeme == "true" or lexeme == "false":
     return lexeme
+  elif lexeme in compilerLexemes[";"]:
+    return ";"
+  elif lexeme in compilerLexemes["="]:
+    return "="
   elif lexeme and lexeme[0].isalpha() and lexeme.isalnum() :
     return "id"
   else:
@@ -72,7 +78,7 @@ def analyzeSyntax(filePath):
       formingLexem = formingLexem.strip()
       if insideString == False: #TO-DO: Implement functionality   
         if formingLexem not in compilerLexemes["PR"] and formingLexem not in compilerLexemes["op"]:
-          if symbol in compilerLexemes["op"]:
+          if symbol in compilerLexemes["op"] or symbol == ";" or symbol == "=":
             lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
             lexemesInLine.append(getLexemData(formingLexem, actLineNum))
             lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
@@ -88,10 +94,18 @@ def analyzeSyntax(filePath):
           else:
             formingLexem += symbol
         else:
+          if symbol == ";":
+            lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
+            lexemesInLine.append(getLexemData(formingLexem, actLineNum))
+            lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
+            lexemesInLine.append(getLexemData(symbol, actLineNum))
+            formingLexem = ""
           lexemes.append(getLexemData(formingLexem, actLineNum)) # ADD RESERVE WORDS
           lexemesInLine.append(getLexemData(formingLexem, actLineNum))
           formingLexem = ""  
+    lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
+    #print(lexemesInLine)
     if (analyzeResult == "correct"):
       correctStatements += 1
     if (analyzeResult == "incorrect"):
@@ -104,24 +118,28 @@ def analyzeStatementSyntax(lexemesInLine):
   statement = ""
   analyzeResult = ""
   # get line statement
+  # STATEMENT EXAMPLE: rw id;
   for lexeme in lexemesInLine:
     statement += " "+lexeme["type"]
 
+  print("statement: ",statement)
+
   #check if statement is in statement list  
-  if statement in statementsList:
+  if statement.strip() in statementsList:
     print("=== MATCHED STATEMENT ===")
     analysisResult = "correct"
   else:
+    #Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
     """
       Definir lista de palabras que pueden ser constantes, si no esta en la
       lista de statements, buscamos el primer tipo de lexema que encontremos en el statement
       con el del primero del statement. si no pasamos al siguiente grupo de lexemas-
+      
       Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
       si no es un tipo de constante (osea un tipo de lexema) entonces buscamosa que tipo de lexema
       pertenece si existe en alguno entonces es correcto y se procede con el siguiente elemento de la lista de
       lexemas en el statement.
     """
-    
     print("=== ERROR STATEMENT ===")
     analysisResult = "incorrect"
   return analysisResult

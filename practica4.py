@@ -6,12 +6,9 @@ def printLexemesDetailsList(lexemes):
       print(lexemeKey,": ",lexeme[lexemeKey])
     print("==========================")
 
-#lexemesInFile = getLexemesAndIdentifiers("codigo.jg")
+#lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
 lexemesInFile = analyzeSyntax("codigo.jg")
 #printLexemesDetailsList(lexemesInFile)
-#statements = getStatements(lexemesInFile)
-#analyzeStatementsSyntax(statements)
-
 
 
 
