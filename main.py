@@ -12,35 +12,6 @@ def getLexemData(lexeme, line):
       "line": line,
     }  
 
-def getLexemesAndIdentifiers(filePath):
-    actLineNum = 0
-    formingLexem = ""
-    insideString = False
-    lexemes = []
-    for line in getJgFileAsCleanedLines(filePath): 
-      actLineNum += 1
-      lineIndex = 0
-      for symbol in line:
-          lineIndex += 1
-          formingLexem = formingLexem.strip()
-          if insideString == False: #TO-DO: Implement functionality   
-            if formingLexem not in compilerLexemes["PR"] and formingLexem not in compilerLexemes["op"]:
-              if symbol in compilerLexemes["op"]:
-                lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
-                lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
-                formingLexem = ""
-              elif symbol.isspace():
-                lexemes.append(getLexemData(formingLexem, actLineNum))
-                formingLexem = ""
-              elif actLineNum == len(getJgFileAsCleanedLines(filePath)) and lineIndex == len(line):
-                lexemes.append(getLexemData(formingLexem + symbol, actLineNum))
-              else:
-                formingLexem += symbol
-            else:
-              lexemes.append(getLexemData(formingLexem, actLineNum)) # ADD RESERVE WORDS
-              formingLexem = ""
-    return [lexeme for lexeme in lexemes if not (lexeme['value'] == "")]
-
 def getLexemeType(lexeme):
   if lexeme == "break":
     return "break"
@@ -146,3 +117,17 @@ def analyzeStatementSyntax(lexemesInLine):
 
 
 # ==========================================================
+# ==========================================================
+# ====================== MAIN ==============================
+# ==========================================================
+# ==========================================================
+
+def printLexemesDetailsList(lexemes):
+  for lexeme in lexemes:
+    for lexemeKey in lexeme:    
+      print(lexemeKey,": ",lexeme[lexemeKey])
+    print("==========================")
+
+#lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
+lexemesInFile = analyzeSyntax("codigo.jg")
+#printLexemesDetailsList(lexemesInFile)
