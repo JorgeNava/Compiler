@@ -1,0 +1,16 @@
+> Error:
+Error type:Missing ';' in statement
+Detected Statement:  rw id
+Line: 2
+
+> Error:
+Error type:Missing ';' in statement
+Detected Statement:  break
+Line: 6
+
+> Error:
+Error type:Missing ';' in statement
+Detected Statement:  id = false
+Line: 8
+
+~ Happy debugging :D ~

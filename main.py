@@ -10,7 +10,11 @@ def getLexemData(lexeme, line):
       "value": lexeme,
       "type": getLexemeType(lexeme),
       "line": line,
-    }  
+    }
+
+def formatErrorLog(error):
+  RET_VAL = "> Error:\nError type:" + error["type"] + "\nDetected Statement: " + error["detectedStatement"] + "\nLine: " + str(error["line"]) + "\n\n"  
+  return str(RET_VAL)
 
 def getLexemeType(lexeme):
   if lexeme == "break":
@@ -34,10 +38,12 @@ def getLexemeType(lexeme):
     
 def analyzeSyntax(filePath):
   correctStatements = 0
+  errorStatements = 0
   incorrectStatements = 0
   actLineNum = 0
   formingLexem = ""
   insideString = False
+  errorLogs = []
   lexemes = []
   for line in getJgFileAsCleanedLines(filePath): 
     lexemesInLine = []
@@ -77,12 +83,24 @@ def analyzeSyntax(filePath):
     lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
     #print(lexemesInLine)
-    if (analyzeResult == "correct"):
+    if (analyzeResult["state"] == "correct"):
       correctStatements += 1
-    if (analyzeResult == "incorrect"):
+    if (analyzeResult["state"] == "error"):
+      errorStatements += 1
+      errorLogs.append(analyzeResult)
+    if (analyzeResult["state"] == "unidentified"):
       incorrectStatements += 1
   print("correctStatements: ",correctStatements)
+  print("errorStatements: ",errorStatements)
   print("incorrectStatements: ",incorrectStatements)
+
+  # Create error logs file
+  f = open("errorLogs.txt","w+")
+  for error in errorLogs:
+    f.write(formatErrorLog(error))
+  f.write("~ Happy debugging :D ~")
+  f.close()
+  
   return [lexeme for lexeme in lexemes if not (lexeme['value'] == "")]
 
 def analyzeStatementSyntax(lexemesInLine):
@@ -90,6 +108,7 @@ def analyzeStatementSyntax(lexemesInLine):
   analyzeResult = ""
   # get line statement
   # STATEMENT EXAMPLE: rw id;
+  LEXEME_LINE = lexemesInLine[0]["line"]
   for lexeme in lexemesInLine:
     statement += " "+lexeme["type"]
 
@@ -98,9 +117,11 @@ def analyzeStatementSyntax(lexemesInLine):
   #check if statement is in statement list  
   if statement.strip() in statementsList:
     print("=== MATCHED STATEMENT ===")
-    analysisResult = "correct"
+    analysisResult = {
+        "state": "correct"
+    }
   else:
-    #Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
+    #TBD: Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
     """
       Definir lista de palabras que pueden ser constantes, si no esta en la
       lista de statements, buscamos el primer tipo de lexema que encontremos en el statement
@@ -111,8 +132,23 @@ def analyzeStatementSyntax(lexemesInLine):
       pertenece si existe en alguno entonces es correcto y se procede con el siguiente elemento de la lista de
       lexemas en el statement.
     """
-    print("=== ERROR STATEMENT ===")
-    analysisResult = "incorrect"
+
+
+    # ERRORS DETECTION ZONE
+    if (statement.strip().startswith('break') or statement.strip().startswith("id = false") or statement.strip().startswith("rw id")) and not lexemesInLine[-1]["value"].endswith("{"):
+      print("=== ERROR STATEMENT ===")
+      analysisResult = {
+        "state": "error",
+        "type": "Missing ';' in statement",
+        "line": LEXEME_LINE,
+        "detectedStatement": statement
+      }
+    # HERE WE SHOULD SET THE REST OF ERRORS TO RECOGNIZE
+    else:
+      print("=== UNIDETIFIED STATEMENT ===")
+      analysisResult = {
+        "state": "unidentified"
+      }
   return analysisResult
 
 
@@ -129,5 +165,5 @@ def printLexemesDetailsList(lexemes):
     print("==========================")
 
 #lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
-lexemesInFile = analyzeSyntax("codigo.jg")
+lexemesInFile = analyzeSyntax("codigoConErrores.jg")
 #printLexemesDetailsList(lexemesInFile)
