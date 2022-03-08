@@ -1,16 +1,19 @@
 > Error:
-Error type:Missing ';' in statement
+Error type: Missing ';' in statement
 Detected Statement:  rw id
+Raw Statement:  bool OLD
 Line: 2
 
 > Error:
-Error type:Missing ';' in statement
+Error type: Missing ';' in statement
 Detected Statement:  break
+Raw Statement:  break
 Line: 6
 
 > Error:
-Error type:Missing ';' in statement
+Error type: Missing ';' in statement
 Detected Statement:  id = false
+Raw Statement:  OLD = false
 Line: 8
 
 ~ Happy debugging :D ~

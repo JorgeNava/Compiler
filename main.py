@@ -13,7 +13,7 @@ def getLexemData(lexeme, line):
     }
 
 def formatErrorLog(error):
-  RET_VAL = "> Error:\nError type:" + error["type"] + "\nDetected Statement: " + error["detectedStatement"] + "\nLine: " + str(error["line"]) + "\n\n"  
+  RET_VAL = "> Error:\nError type: " + error["type"] + "\nDetected Statement: " + error["detectedStatement"] + "\nRaw Statement: " + error["rawStatement"]+ "\nLine: " + str(error["line"]) + "\n\n"  
   return str(RET_VAL)
 
 def getLexemeType(lexeme):
@@ -92,7 +92,7 @@ def analyzeSyntax(filePath):
       incorrectStatements += 1
   print("correctStatements: ",correctStatements)
   print("errorStatements: ",errorStatements)
-  print("incorrectStatements: ",incorrectStatements)
+  print("unidentifiedStatements: ",incorrectStatements)
 
   # Create error logs file
   f = open("errorLogs.txt","w+")
@@ -105,12 +105,13 @@ def analyzeSyntax(filePath):
 
 def analyzeStatementSyntax(lexemesInLine):
   statement = ""
-  analyzeResult = ""
+  rawStatement = ""
   # get line statement
   # STATEMENT EXAMPLE: rw id;
   LEXEME_LINE = lexemesInLine[0]["line"]
   for lexeme in lexemesInLine:
     statement += " "+lexeme["type"]
+    rawStatement += " "+lexeme["value"]
 
   print("statement: ",statement)
 
@@ -141,7 +142,8 @@ def analyzeStatementSyntax(lexemesInLine):
         "state": "error",
         "type": "Missing ';' in statement",
         "line": LEXEME_LINE,
-        "detectedStatement": statement
+        "detectedStatement": statement,
+        "rawStatement": rawStatement
       }
     # HERE WE SHOULD SET THE REST OF ERRORS TO RECOGNIZE
     else:
