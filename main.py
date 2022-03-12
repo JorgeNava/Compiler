@@ -166,6 +166,8 @@ def printLexemesDetailsList(lexemes):
       print(lexemeKey,": ",lexeme[lexemeKey])
     print("==========================")
 
-#lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
-lexemesInFile = analyzeSyntax("codigoConErrores.jg")
-#printLexemesDetailsList(lexemesInFile)
+
+if __name__=="__main__":
+  #lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
+  lexemesInFile = analyzeSyntax("codigoConErrores.jg")
+  #printLexemesDetailsList(lexemesInFile)
