@@ -10,7 +10,7 @@ def getLexemData(lexeme, line):
       "value": lexeme,
       "type": getLexemeType(lexeme),
       "line": line,
-    }
+  }
 
 def formatErrorLog(error):
   RET_VAL = "> Error:\nError type: " + error["type"] + "\nDetected Statement: " + error["detectedStatement"] + "\nRaw Statement: " + error["rawStatement"]+ "\nLine: " + str(error["line"]) + "\n\n"  
@@ -45,6 +45,7 @@ def analyzeSyntax(filePath):
   insideString = False
   errorLogs = []
   lexemes = []
+  lexemesInLines = []
   for line in getJgFileAsCleanedLines(filePath): 
     lexemesInLine = []
     actLineNum += 1
@@ -81,8 +82,9 @@ def analyzeSyntax(filePath):
           lexemesInLine.append(getLexemData(formingLexem, actLineNum))
           formingLexem = ""  
     lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
+    lexemesInLines.append(lexemesInLine)
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
-    #print(lexemesInLine)
+    ##print(lexemesInLine)
     if (analyzeResult["state"] == "correct"):
       correctStatements += 1
     if (analyzeResult["state"] == "error"):
@@ -90,9 +92,9 @@ def analyzeSyntax(filePath):
       errorLogs.append(analyzeResult)
     if (analyzeResult["state"] == "unidentified"):
       incorrectStatements += 1
-  print("correctStatements: ",correctStatements)
-  print("errorStatements: ",errorStatements)
-  print("unidentifiedStatements: ",incorrectStatements)
+  #print("correctStatements: ",correctStatements)
+  #print("errorStatements: ",errorStatements)
+  #print("unidentifiedStatements: ",incorrectStatements)
 
   # Create error logs file
   f = open("errorLogs.txt","w+")
@@ -100,8 +102,7 @@ def analyzeSyntax(filePath):
     f.write(formatErrorLog(error))
   f.write("~ Happy debugging :D ~")
   f.close()
-  
-  return [lexeme for lexeme in lexemes if not (lexeme['value'] == "")]
+  return ([lexeme for lexeme in lexemes if not (lexeme['value'] == "")], lexemesInLines)
 
 def analyzeStatementSyntax(lexemesInLine):
   statement = ""
@@ -113,11 +114,11 @@ def analyzeStatementSyntax(lexemesInLine):
     statement += " "+lexeme["type"]
     rawStatement += " "+lexeme["value"]
 
-  print("statement: ",statement)
+  ##print("statement: ",statement)
 
   #check if statement is in statement list  
   if statement.strip() in statementsList:
-    print("=== MATCHED STATEMENT ===")
+    #print("=== MATCHED STATEMENT ===")
     analysisResult = {
         "state": "correct"
     }
@@ -137,7 +138,7 @@ def analyzeStatementSyntax(lexemesInLine):
 
     # ERRORS DETECTION ZONE
     if (statement.strip().startswith('break') or statement.strip().startswith("id = false") or statement.strip().startswith("rw id")) and not lexemesInLine[-1]["value"].endswith("{"):
-      print("=== ERROR STATEMENT ===")
+      #print("=== ERROR STATEMENT ===")
       analysisResult = {
         "state": "error",
         "type": "Missing ';' in statement",
@@ -147,11 +148,46 @@ def analyzeStatementSyntax(lexemesInLine):
       }
     # HERE WE SHOULD SET THE REST OF ERRORS TO RECOGNIZE
     else:
-      print("=== UNIDETIFIED STATEMENT ===")
+      #print("=== UNIDETIFIED STATEMENT ===")
       analysisResult = {
         "state": "unidentified"
       }
   return analysisResult
+
+
+def translateJGFile(lexemes, lexemesInLines):
+  pythonStatements = []
+
+
+  """
+    Generate array of strings
+    String will be statement as lexeme in types
+    Iterate through all lines in lexemesInLines
+    and then iterate through every lexeme in that line,
+    then create string.
+  """
+  for lexemeInLine in lexemesInLines:
+    statement += " "+lexeme["type"]
+    rawStatement += " "+lexeme["value"]
+
+  for lexemesTypesStatement in lexemesInLines:
+    lexemesTypesStatementTranslated = None
+    #Get translated statement in lexeme types
+    if lexemesTypesStatement in pythonStatementsTranslationDict:
+      lexemesTypesStatementTranslated = pythonStatementsTranslationDict[lexemesTypesStatement]
+      print(">>> lexemesTypesStatementTranslated", lexemesTypesStatementTranslated)
+    
+    #Replace lexemes types in statement with lexemes values
+    if lexemesTypesStatementTranslated is not None:
+      #  "int myVar = 8;": "myVar = 8",
+      #  "rw id = num ;": "id = num",
+      """
+        Ignore lexemes that are not in translated statement
+        Replace values in translated statement
+        Copy in translated statement constant values (verify that they exist in python)
+        Consider python equivalentes for operators lexemes and logical values
+      """
+  return pythonStatements
 
 
 # ==========================================================
@@ -162,12 +198,12 @@ def analyzeStatementSyntax(lexemesInLine):
 
 def printLexemesDetailsList(lexemes):
   for lexeme in lexemes:
-    for lexemeKey in lexeme:    
+    for lexemeKey in lexeme:
       print(lexemeKey,": ",lexeme[lexemeKey])
     print("==========================")
 
 
 if __name__=="__main__":
-  #lexemesInFile = getLexemesAndIdentifiers("codigo.jg") [DEPRECATED]
-  lexemesInFile = analyzeSyntax("codigoConErrores.jg")
-  #printLexemesDetailsList(lexemesInFile)
+  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigoConErrores.jg") 
+  translatedLexemes = translateJGFile(lexemesInFile, lexemesInLines)
+  printLexemesDetailsList(translatedLexemes)
