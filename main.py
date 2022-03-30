@@ -157,8 +157,11 @@ def analyzeStatementSyntax(lexemesInLine):
 
 def translateJGFile(lexemes, lexemesInLines):
   pythonStatements = []
-
-
+  statement = ""
+  rawStatement = ""
+  typeStatements = []
+  rawStatements = []
+  newLine = False
   """
     Generate array of strings
     String will be statement as lexeme in types
@@ -167,8 +170,23 @@ def translateJGFile(lexemes, lexemesInLines):
     then create string.
   """
   for lexemeInLine in lexemesInLines:
-    statement += " "+lexeme["type"]
-    rawStatement += " "+lexeme["value"]
+    for lexeme in lexemeInLine:
+      if newLine:
+        typeStatements.append(statement.strip())
+        rawStatements.append(rawStatement.strip())
+        statement = ""
+        rawStatement = ""
+        newLine = False
+      statement += " "+lexeme["type"]
+      rawStatement += " "+lexeme["value"]
+      if len(lexemesInLines) == lexeme["line"]:
+        typeStatements.append(statement.strip())
+        rawStatements.append(rawStatement.strip())
+    newLine = True
+  print("====================typeStatements=================")
+  print(typeStatements)
+  print("====================rawStatements=================")
+  print(rawStatements)
 
   for lexemesTypesStatement in lexemesInLines:
     lexemesTypesStatementTranslated = None
@@ -187,7 +205,7 @@ def translateJGFile(lexemes, lexemesInLines):
         Copy in translated statement constant values (verify that they exist in python)
         Consider python equivalentes for operators lexemes and logical values
       """
-  return pythonStatements
+  #return pythonStatements
 
 
 # ==========================================================
@@ -204,6 +222,10 @@ def printLexemesDetailsList(lexemes):
 
 
 if __name__=="__main__":
-  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigoConErrores.jg") 
-  translatedLexemes = translateJGFile(lexemesInFile, lexemesInLines)
-  printLexemesDetailsList(translatedLexemes)
+  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigoconErrores.jg") 
+  # print("===========InLine===============")
+  # print(lexemesInLines)
+  # print("===========InFile===============")
+  # print(lexemesInFile)
+  translateJGFile(lexemesInFile, lexemesInLines)
+  #printLexemesDetailsList(translatedLexemes)
