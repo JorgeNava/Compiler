@@ -1,5 +1,6 @@
 func main(){
 	bool OLD;
+	int myVar = 21; 
 	for int myAge  = 0; myAge <= 100; myAge++ {
 		if myAge > 18 {
 			OLD = true;

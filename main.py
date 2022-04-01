@@ -183,12 +183,8 @@ def translateJGFile(lexemes, lexemesInLines):
         typeStatements.append(statement.strip())
         rawStatements.append(rawStatement.strip())
     newLine = True
-  print("====================typeStatements=================")
-  print(typeStatements)
-  print("====================rawStatements=================")
-  print(rawStatements)
 
-  for lexemesTypesStatement in lexemesInLines:
+  for lexemesInLine in lexemesInLines:
     lexemesTypesStatementTranslated = None
     #Get translated statement in lexeme types
     if lexemesTypesStatement in pythonStatementsTranslationDict:
