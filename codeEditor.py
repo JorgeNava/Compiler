@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from PIL import Image, ImageTk
 import subprocess
+from compiler import *  
+
 
 compiler = Tk()
 compiler.title('JG STUDIO CODE')
@@ -15,7 +17,7 @@ def set_file_path(path):
 
 
 def open_file():
-    path = askopenfilename(filetypes=[('Python Files', '*.py')])
+    path = askopenfilename(filetypes=[('JG Files', '*.jg')])
     with open(path, 'r') as file:
         code = file.read()
         editor.delete('1.0', END)
@@ -25,7 +27,7 @@ def open_file():
 
 def save_as():
     if file_path == '':
-        path = asksaveasfilename(filetypes=[('Python Files', '*.py')])
+        path = asksaveasfilename(filetypes=[('JG Files', '*.jg')])
     else:
         path = file_path
     with open(path, 'w') as file:
@@ -35,12 +37,16 @@ def save_as():
 
 
 def run():
+    (lexemesInFile, lexemesInLines) = analyzeSyntax(file_path) 
+    trasnlatedLexemesInFile = translateJGFile(lexemesInLines)
+    pythonTranslatedFileName = file_path.split(".")[0] + ".py"
+    createFile(pythonTranslatedFileName,trasnlatedLexemesInFile)
     if file_path == '':
         save_prompt = Toplevel()
         text = Label(save_prompt, text='Please save your code')
         text.pack()
         return
-    command = f'python {file_path}'
+    command = f'python {pythonTranslatedFileName}'
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
     code_output.insert('1.0', output)

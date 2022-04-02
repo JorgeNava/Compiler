@@ -240,3 +240,12 @@ if __name__=="__main__":
   trasnlatedLexemesInFile = translateJGFile(lexemesInLines)
   createFile("codigo.py",trasnlatedLexemesInFile)
   print("!!! TRANSLATION COMPLETED !!!")
+
+
+"""
+  TBD 
+  * Agregar soporte para tabulaciones basadas en las '{' y sustituir por ':' (NAVA)
+  * Agregar soporte para for, if/else
+    * Hacer la gramatica y agregarla a las tiendas de diccionarios (GUS)
+    * Agregar funcionalidad en traduccion de codigo de for, if/else (NAVA)
+"""

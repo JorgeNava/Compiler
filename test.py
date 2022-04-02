@@ -63,3 +63,5 @@ translatedLexemesInLine = getTranslatedLexemesInLine(statement)
 
 log("rawStatement: " + rawStatement)
 log("translatedRawStatement: " + rawTranslatedStatement)
+
+print("codigo.jg".split(".")[0] + ".py")
