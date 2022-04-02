@@ -1,4 +1,5 @@
 from jgStore import *  
+from helpers import *  
 
 def getJgFileAsCleanedLines(filePath):
     f = open(filePath, "r")
@@ -19,17 +20,17 @@ def formatErrorLog(error):
 def getLexemeType(lexeme):
   if lexeme == "break":
     return "break"
-  elif lexeme in compilerLexemes["PR"]:
+  elif lexeme in compilerLexemesStore["PR"]:
     return "rw"
-  elif lexeme in compilerLexemes["op"]:
+  elif lexeme in compilerLexemesStore["op"]:
     return "op"
   elif lexeme.isnumeric():
     return "num"
   elif lexeme == "true" or lexeme == "false":
     return lexeme
-  elif lexeme in compilerLexemes[";"]:
+  elif lexeme in compilerLexemesStore[";"]:
     return ";"
-  elif lexeme in compilerLexemes["="]:
+  elif lexeme in compilerLexemesStore["="]:
     return "="
   elif lexeme and lexeme[0].isalpha() and lexeme.isalnum() :
     return "id"
@@ -55,8 +56,8 @@ def analyzeSyntax(filePath):
       statement = ""
       formingLexem = formingLexem.strip()
       if insideString == False: #TO-DO: Implement functionality   
-        if formingLexem not in compilerLexemes["PR"] and formingLexem not in compilerLexemes["op"]:
-          if symbol in compilerLexemes["op"] or symbol == ";" or symbol == "=":
+        if formingLexem not in compilerLexemesStore["PR"] and formingLexem not in compilerLexemesStore["op"]:
+          if symbol in compilerLexemesStore["op"] or symbol == ";" or symbol == "=":
             lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
             lexemesInLine.append(getLexemData(formingLexem, actLineNum))
             lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
@@ -117,7 +118,7 @@ def analyzeStatementSyntax(lexemesInLine):
   ##print("statement: ",statement)
 
   #check if statement is in statement list  
-  if statement.strip() in statementsList:
+  if statement.strip() in statementsStore:
     #print("=== MATCHED STATEMENT ===")
     analysisResult = {
         "state": "correct"
@@ -155,20 +156,13 @@ def analyzeStatementSyntax(lexemesInLine):
   return analysisResult
 
 
-def translateJGFile(lexemes, lexemesInLines):
+def translateJGFile(lexemesInLines):
   pythonStatements = []
   statement = ""
   rawStatement = ""
   typeStatements = []
   rawStatements = []
   newLine = False
-  """
-    Generate array of strings
-    String will be statement as lexeme in types
-    Iterate through all lines in lexemesInLines
-    and then iterate through every lexeme in that line,
-    then create string.
-  """
   for lexemeInLine in lexemesInLines:
     for lexeme in lexemeInLine:
       if newLine:
@@ -184,25 +178,49 @@ def translateJGFile(lexemes, lexemesInLines):
         rawStatements.append(rawStatement.strip())
     newLine = True
 
-  for lexemesInLine in lexemesInLines:
-    lexemesTypesStatementTranslated = None
-    #Get translated statement in lexeme types
-    if lexemesTypesStatement in pythonStatementsTranslationDict:
-      lexemesTypesStatementTranslated = pythonStatementsTranslationDict[lexemesTypesStatement]
-      print(">>> lexemesTypesStatementTranslated", lexemesTypesStatementTranslated)
-    
-    #Replace lexemes types in statement with lexemes values
-    if lexemesTypesStatementTranslated is not None:
-      #  "int myVar = 8;": "myVar = 8",
-      #  "rw id = num ;": "id = num",
-      """
-        Ignore lexemes that are not in translated statement
-        Replace values in translated statement
-        Copy in translated statement constant values (verify that they exist in python)
-        Consider python equivalentes for operators lexemes and logical values
-      """
-  #return pythonStatements
+  for statement in lexemesInLines:
+    (rawStatement, typesStatement) = getLexemesTokensInLine(statement)
+    translatedLexemesInLine = getTranslatedLexemesInLine(statement)
+    (rawTranslatedStatement, typesTranslatedStatement) = getLexemesTokensInLine(translatedLexemesInLine)
+    pythonStatements.append(rawTranslatedStatement)
+  
+  return pythonStatements
 
+def getTranslatedLexemesInLine(statement):
+  translatedLexemesInLine = []
+  (rawStatement, typesStatement) = getLexemesTokensInLine(statement)
+  if typesStatement in pythonStatementsTranslationStore and pythonStatementsTranslationStore[typesStatement] is not None: 
+    for lexeme in statement:
+      lexemeCounterPart = {"type": lexeme["type"]}
+      if lexeme["type"] in ["id", "num"]:
+        lexemeCounterPart["value"] = lexeme["value"]
+      elif lexeme["value"] in pythonLexmesTranslationStore:
+        lexemeCounterPart["value"] = pythonLexmesTranslationStore[lexeme["value"]]
+      else:
+        lexemeCounterPart = None
+        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore")
+
+      if lexemeCounterPart is not None:
+        translatedLexemesInLine.append(lexemeCounterPart)
+  else:
+    error(typesStatement + " not founded in pythonLexmesTranslationStore")
+  return translatedLexemesInLine
+
+def getLexemesTokensInLine(statement):    
+  rawStatement =  ""
+  typeStatement =  ""
+  for lexeme in statement:
+    if lexeme["value"] is not None:
+      rawStatement += lexeme["value"] + " "
+      typeStatement += lexeme["type"] + " "
+  return (rawStatement.strip(), typeStatement.strip())
+
+def createFile(filename, fileContentList):
+  f = open(filename,"w+")
+  for lineContent in fileContentList:
+    if lineContent:
+      f.write(lineContent + "\n")
+  f.close()
 
 # ==========================================================
 # ==========================================================
@@ -218,10 +236,7 @@ def printLexemesDetailsList(lexemes):
 
 
 if __name__=="__main__":
-  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigoconErrores.jg") 
-  # print("===========InLine===============")
-  # print(lexemesInLines)
-  # print("===========InFile===============")
-  # print(lexemesInFile)
-  translateJGFile(lexemesInFile, lexemesInLines)
-  #printLexemesDetailsList(translatedLexemes)
+  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigo.jg") 
+  trasnlatedLexemesInFile = translateJGFile(lexemesInLines)
+  createFile("codigo.py",trasnlatedLexemesInFile)
+  print("!!! TRANSLATION COMPLETED !!!")

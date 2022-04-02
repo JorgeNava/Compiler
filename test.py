@@ -1,105 +1,7 @@
-pythonLexmesTranslationDict = {
-  "PR": [{
-    "jg": "const",
-    "py": None
-  },{
-    "jg": "int",
-    "py": None
-  },{
-    "jg": "char",
-    "py": None
-  },{
-    "jg": "string",
-    "py": None
-  },{
-    "jg": "bool",
-    "py": None
-  },{
-    "jg": "func",
-    "py": "def"
-  },{
-    "jg": "for",
-    "py": "for"
-  },{
-    "jg": "if",
-    "py": "if"
-  },{
-    "jg": "else",
-    "py": "else"
-  },{
-    "jg": "else if",
-    "py": "elif"
-  }],
-  "op": [{
-    "jg": "+",
-    "py": "+"
-  },{
-    "jg": "-",
-    "py": "-"
-  },{
-    "jg": "*",
-    "py": "*"
-  },{
-    "jg": "/",
-    "py": "/"
-  },{
-    "jg": "%",
-    "py": "%"
-  },{
-    "jg": ">",
-    "py": ">"
-  },{
-    "jg": "<",
-    "py": "<"
-  },{
-    "jg": ">=",
-    "py": ">="
-  },{
-    "jg": "==",
-    "py": "=="
-  },{
-    "jg": "!=",
-    "py": "!="
-  },{
-    "jg": "//",
-    "py": "//"
-  },{
-    "jg": "{",
-    "py": None
-  },{
-    "jg": "}",
-    "py": None
-  },{
-    "jg": "(",
-    "py": "("
-  },{
-    "jg": "(",
-    "py": "("
-  }],
-  ";":[{
-    "jg": ";",
-    "py": None
-  }],
-  "=":[{
-    "jg": "=",
-    "py": "="
-  }],
-  "logicalValue": [{
-    "jg": "true",
-    "py": "True"
-  },{
-    "jg": "false",
-    "py": "False"
-  }],
-  "break": [{
-    "jg": "break",
-    "py": "break"
-  }]
-}
+from jgStore import *  
+from helpers import *  
 
-
-
-statement = [
+statement = [ # Equivalent to lexemesInLine (Just in one line)
   {
     "type": "rw",
     "value": "int"
@@ -114,22 +16,50 @@ statement = [
   },
   {
     "type": "num",
-    "value": "num"
+    "value": "8"
+  },
+  {
+    "type": ";",
+    "value": ";"
   },
 ]
-typesStatement = "rw id = num ;"
-rawStatement = "int myVar = 8;"
 
-translatedTypesStatement = "id = num"
-# OUTPUT: id = num / "myVar = 8
+# OUTPUT: id = num / myVar = 8
 
-# ! JUST FOR ON LINE
-for lexeme in statement:
-  translatedLexeme = None
-  if typesStatement in ["rw id = num ;"]:
-    #conseguir contraparte de int, si es None entonces se salta
-    # si su contraparte tiene un valor, enotnces se reemplaza por el valor
-    valueCounterPart = # Get value from trasnlation dictionary
-    if valueCounterPart is not None:
-      translatedLexeme["value"] = valueCounterPart
-    # append translatedLexeme to a nre list of translatedLexemesInLine
+
+def getTranslatedLexemesInLine(statement):
+  translatedLexemesInLine = []
+  (rawStatement, typesStatement) = getLexemesTokensInLine(statement)
+  if typesStatement in pythonStatementsTranslationStore: 
+    for lexeme in statement:
+      lexemeCounterPart = {"type": lexeme["type"]}
+      if lexeme["type"] in ["id", "num"]:
+        lexemeCounterPart["value"] = lexeme["value"]
+      elif lexeme["value"] in pythonLexmesTranslationStore:
+        lexemeCounterPart["value"] = pythonLexmesTranslationStore[lexeme["value"]]
+      else:
+        lexemeCounterPart = None
+        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore")
+
+      if lexemeCounterPart is not None:
+        translatedLexemesInLine.append(lexemeCounterPart)
+  else:
+    error(typesStatement + " not founded in pythonLexmesTranslationStore")
+  return translatedLexemesInLine
+
+def getLexemesTokensInLine(statement):    
+  rawStatement =  ""
+  typeStatement =  ""
+  for lexeme in statement:
+    if lexeme["value"] is not None:
+      rawStatement += lexeme["value"] + " "
+      typeStatement += lexeme["type"] + " "
+  return (rawStatement.strip(), typeStatement.strip())
+
+(rawStatement, typesStatement) = getLexemesTokensInLine(statement)
+
+translatedLexemesInLine = getTranslatedLexemesInLine(statement)
+(rawTranslatedStatement, typesTranslatedStatement) = getLexemesTokensInLine(translatedLexemesInLine)
+
+log("rawStatement: " + rawStatement)
+log("translatedRawStatement: " + rawTranslatedStatement)
