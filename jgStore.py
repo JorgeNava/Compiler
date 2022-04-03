@@ -48,9 +48,13 @@ pythonStatementsTranslationStore = {
   "rw id ;": None,
   "break ;": "break",
   "id = false ;": "id = False",
+  "id = true ;": "id = True",
   "rw id = num ;": "id = num",
   "rw id = id ;": "id = id",
-  "rw id = id op id ;": "id = id op id"
+  "rw id = id op id ;": "id = id op id",
+  "rw rw id = num ; id op = num ; id op op op": "rw id rw range ( id ) :", #for i in range(i):
+  "rw id op num op": "rw id op num :", #if myAge > 18:
+  "rw op": "rw :", #else:
 }
 
 
@@ -60,5 +64,8 @@ statementsStore = [
   "id = false ;",
   "rw id = num ;",
   "rw id = id ;",
-  "rw id = id op id ;"
+  "rw id = id op id ;",
+  "rw rw id = num ; id op = num ; id op op op",
+  "rw id op num op",
+  "rw op"
 ]

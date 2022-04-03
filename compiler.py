@@ -203,7 +203,7 @@ def getTranslatedLexemesInLine(statement):
       if lexemeCounterPart is not None:
         translatedLexemesInLine.append(lexemeCounterPart)
   else:
-    error(typesStatement + " not founded in pythonLexmesTranslationStore")
+    error(typesStatement + " not founded in pythonLexmesTranslationStore or its translation is None")
   return translatedLexemesInLine
 
 def getLexemesTokensInLine(statement):    
