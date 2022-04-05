@@ -3,3 +3,6 @@ def log(message, id = ""):
 
 def error(message, id = ""):
   print("[ERROR]",str(id),message)
+
+def warning(message, id = ""):
+  print("[Warning]",str(id),message)

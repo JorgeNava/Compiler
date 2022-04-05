@@ -1,10 +1,15 @@
+"""
+";":[";"],
+"=":["="],
+"{": ["{"],
+"}": ["}"],
+"break":["break"]
+"""
 compilerLexemesStore = {
   "PR":["const", "int", "float", "char", "string", "bool", "func", "for", "while", "if", "else", "else if"], 
-  "op": ["+","-", "*", "/", "%", ">", "<", ">=","<=", "==", "!=", "//","{", "}", "(", ")"],
-  ";":[";"],
-  "=":["="],
+  "op": ["+","-", "*", "/", "%", ">", "<", ">=","<=", "==", "!=", "//", "(", ")"],
+  "exceptions": [";", "=", "{", "}", "break"],
   "logicalValue":["true","false"],
-  "break":["break"]
   }
 
 pythonLexmesTranslationStore = {
@@ -62,31 +67,37 @@ pythonStatementsTranslationStore = {
   # For
   "for int id = num ; id op = num ; id op op {": "for id in range ( id ) :",
   # Ifs
-  "rw id op num op": "rw id op num :", #if myAge > 18:
-  "rw id op id op": "rw id op id :",
-  "rw logicalValue op": "rw logicalValue :",
-  "rw num op num op": "rw num op num :",
+  "rw id op num {": "rw id op num :", #if myAge > 18:
+  "rw id op id {": "rw id op id :",
+  "rw logicalValue {": "rw logicalValue :",
+  "rw num op num {": "rw num op num :",
   # Else
-  "op rw op": "rw :",
+  "} rw {": "rw :",
+  "rw {": "rw :",
   # Whiles
-  "rw logicalValue op": "rw logicalValue :",
-  "rw id op id op": "rw id op id :",
-  "rw id op num op": "rw id op num :",
-  "rw num op id op": "rw num op id :",
-  "rw num op num op": "rw num op num:",
+  "rw logicalValue {": "rw logicalValue :",
+  "rw id op id {": "rw id op id :",
+  "rw id op num {": "rw id op num :",
+  "rw num op id {": "rw num op id :",
+  "rw num op num {": "rw num op num:",
   # Others
-  #"op": "op", # } / {
+  "}": None,
 }
 
 
 statementsStore = [
+  # declarations
   "rw id ;",
-  "break ;",
-  "id = false ;",
   "rw id = num ;",
   "rw id = id ;",
   "rw id = id op id ;",
-  "rw rw id = num ; id op = num ; id op op op",
-  "rw id op num op",
+  # break
+  "break ;",
+  # assignations
+  "id = logicalValue ;",
+  #for
+  "rw rw id = num ; id op = num ; id op op {",
+  # while / if
+  "rw id op num {",
   "rw op"
 ]

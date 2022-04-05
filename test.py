@@ -23,8 +23,8 @@ statement = [
     "value": "8"
   },
   {
-    "type": ";",
-    "value": ";"
+    "type": "exception",
+    "value": "}"
   },
 ]
 
@@ -61,6 +61,16 @@ def getLexemesTokensInLine(statement):
       typeStatement += lexeme["type"] + " "
   return (rawStatement.strip(), typeStatement.strip())
 
+def updateTabsCounter(statement, tabsCounter):
+  for lexeme in statement:
+    if lexeme["value"] == "{": 
+      tabsCounter += 1
+    elif lexeme["value"] == "}":
+      tabsCounter -= 1
+  return tabsCounter
+
+tabsCounter = 0
+tabsCounter = updateTabsCounter(statement, tabsCounter)
 (rawStatement, typesStatement) = getLexemesTokensInLine(statement)
 
 translatedLexemesInLine = getTranslatedLexemesInLine(statement)
@@ -68,3 +78,4 @@ translatedLexemesInLine = getTranslatedLexemesInLine(statement)
 
 log("rawStatement: " + rawStatement)
 log("translatedRawStatement: " + rawTranslatedStatement)
+log("tabsInLine: " + str(tabsCounter))

@@ -18,9 +18,15 @@ def formatErrorLog(error):
   return str(RET_VAL)
 
 def getLexemeType(lexeme):
+  """
   if lexeme == "break":
     return "break"
-  elif lexeme in compilerLexemesStore["PR"]:
+  elif lexeme in compilerLexemesStore[";"]:
+    return ";"
+  elif lexeme in compilerLexemesStore["="]:
+    return "="
+  """
+  if lexeme in compilerLexemesStore["PR"]:
     return "rw"
   elif lexeme in compilerLexemesStore["op"]:
     return "op"
@@ -28,11 +34,8 @@ def getLexemeType(lexeme):
     return "num"
   elif lexeme == "true" or lexeme == "false":
     return "logicalValue"
-    #return lexeme
-  elif lexeme in compilerLexemesStore[";"]:
-    return ";"
-  elif lexeme in compilerLexemesStore["="]:
-    return "="
+  elif lexeme in compilerLexemesStore["exceptions"]:
+    return lexeme
   elif lexeme and lexeme[0].isalpha() and lexeme.isalnum() :
     return "id"
   else:
@@ -58,7 +61,8 @@ def analyzeSyntax(filePath):
       formingLexem = formingLexem.strip()
       if insideString == False: #TO-DO: Implement functionality   
         if formingLexem not in compilerLexemesStore["PR"] and formingLexem not in compilerLexemesStore["op"]:
-          if symbol in compilerLexemesStore["op"] or symbol == ";" or symbol == "=":
+          #if symbol in compilerLexemesStore["op"] or symbol == ";" or symbol == "=":
+          if symbol in compilerLexemesStore["op"] or symbol in compilerLexemesStore["exceptions"]:
             lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
             lexemesInLine.append(getLexemData(formingLexem, actLineNum))
             lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
@@ -86,7 +90,7 @@ def analyzeSyntax(filePath):
     lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
     lexemesInLines.append(lexemesInLine)
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
-    print(lexemesInLine)
+    #print(lexemesInLine)
     if (analyzeResult["state"] == "correct"):
       correctStatements += 1
     if (analyzeResult["state"] == "error"):
@@ -158,6 +162,7 @@ def analyzeStatementSyntax(lexemesInLine):
 
 
 def translateJGFile(lexemesInLines):
+  tabsCounter = 0
   pythonStatements = []
   statement = ""
   rawStatement = ""
@@ -179,13 +184,16 @@ def translateJGFile(lexemesInLines):
         rawStatements.append(rawStatement.strip())
     newLine = True
 
+  tabsInFile = []
   for statement in lexemesInLines:
+    tabsCounter = updateTabsCounter(statement, tabsCounter)
+    tabsInFile.append(tabsCounter)
     (rawStatement, typesStatement) = getLexemesTokensInLine(statement)
     translatedLexemesInLine = getTranslatedLexemesInLine(statement)
     (rawTranslatedStatement, typesTranslatedStatement) = getLexemesTokensInLine(translatedLexemesInLine)
     pythonStatements.append(rawTranslatedStatement)
   
-  return pythonStatements
+  return (pythonStatements, tabsInFile)
 
 def getTranslatedLexemesInLine(statement):
   translatedLexemesInLine = []
@@ -204,7 +212,7 @@ def getTranslatedLexemesInLine(statement):
       if lexemeCounterPart is not None:
         translatedLexemesInLine.append(lexemeCounterPart)
   else:
-    error(typesStatement + " not founded in pythonStatementsTranslationStore or its translation is None")
+    warning(typesStatement + " not founded in pythonStatementsTranslationStore or its translation is None")
   return translatedLexemesInLine
 
 def getLexemesTokensInLine(statement):    
@@ -216,11 +224,22 @@ def getLexemesTokensInLine(statement):
       typeStatement += lexeme["type"] + " "
   return (rawStatement.strip(), typeStatement.strip())
 
-def createFile(filename, fileContentList):
+def updateTabsCounter(statement, tabsCounter):
+  print("LOL", statement)
+  for lexeme in statement:
+    if lexeme["value"] == "{": 
+      tabsCounter += 1
+    elif lexeme["value"] == "}":
+      tabsCounter -= 1
+  return tabsCounter
+
+def createFile(filename, fileContentList, tabsInFile):
   f = open(filename,"w+")
-  for lineContent in fileContentList:
+  for idx, lineContent in enumerate(fileContentList):
+    print(idx, lineContent, tabsInFile[idx])
     if lineContent:
-      f.write(lineContent + "\n")
+      content = lineContent + "\n" + ''.join(["\t"*tabsInFile[idx]]) 
+      f.write(content)
   f.close()
 
 # ==========================================================
@@ -238,8 +257,8 @@ def printLexemesDetailsList(lexemes):
 
 if __name__=="__main__":
   (lexemesInFile, lexemesInLines) = analyzeSyntax("codigo.jg") 
-  trasnlatedLexemesInFile = translateJGFile(lexemesInLines)
-  createFile("codigo.py",trasnlatedLexemesInFile)
+  (trasnlatedLexemesInFile, tabsInFile) = translateJGFile(lexemesInLines)
+  createFile("codigo.py",trasnlatedLexemesInFile, tabsInFile)
   print("!!! TRANSLATION COMPLETED !!!")
 
 
