@@ -1,5 +1,5 @@
 compilerLexemesStore = {
-  "PR":["const", "int", "float", "char", "string", "bool", "func", "for", "if", "else", "else if"], 
+  "PR":["const", "int", "float", "char", "string", "bool", "func", "for", "while", "if", "else", "else if"], 
   "op": ["+","-", "*", "/", "%", ">", "<", ">=","<=", "==", "!=", "//","{", "}", "(", ")"],
   ";":[";"],
   "=":["="],
@@ -11,6 +11,7 @@ pythonLexmesTranslationStore = {
   # Lexemes with equivalents in Python
   "func": "def",
   "for": "for",
+  "while": "while",
   "if": "if",
   "else": "else",
   "else if": "elif",
@@ -18,6 +19,7 @@ pythonLexmesTranslationStore = {
   "false": "False",
   "break": "break",
   "//": "#",
+  "{": ":",
   # Lexemes where equivalents are the same in Python
   "+": "+",
   "-": "-",
@@ -39,7 +41,6 @@ pythonLexmesTranslationStore = {
   "char": None,
   "string": None,
   "bool": None,
-  "{": None,
   "}": None,
   ";": None,
 }
@@ -47,14 +48,34 @@ pythonLexmesTranslationStore = {
 pythonStatementsTranslationStore = {  
   "rw id ;": None,
   "break ;": "break",
-  "id = false ;": "id = False",
-  "id = true ;": "id = True",
+  # Declarations
   "rw id = num ;": "id = num",
   "rw id = id ;": "id = id",
-  "rw id = id op id ;": "id = id op id",
-  "rw rw id = num ; id op = num ; id op op op": "rw id rw range ( id ) :", #for i in range(i):
+  # Assignations
+  "id = logicalValue ;": "id = logicalValue",
+  "id = id ;": "id = id",
+  "id = num ;": "id = num",
+  "id = id op id ;": "id = id op id",
+  "id = id op num ;": "id = id op num",
+  "id = num op id ;": "id = num op id",
+  "id = num op num ;": "id = num op num",
+  # For
+  "for int id = num ; id op = num ; id op op {": "for id in range ( id ) :",
+  # Ifs
   "rw id op num op": "rw id op num :", #if myAge > 18:
-  "rw op": "rw :", #else:
+  "rw id op id op": "rw id op id :",
+  "rw logicalValue op": "rw logicalValue :",
+  "rw num op num op": "rw num op num :",
+  # Else
+  "op rw op": "rw :",
+  # Whiles
+  "rw logicalValue op": "rw logicalValue :",
+  "rw id op id op": "rw id op id :",
+  "rw id op num op": "rw id op num :",
+  "rw num op id op": "rw num op id :",
+  "rw num op num op": "rw num op num:",
+  # Others
+  #"op": "op", # } / {
 }
 
 

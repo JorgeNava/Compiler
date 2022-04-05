@@ -27,7 +27,8 @@ def getLexemeType(lexeme):
   elif lexeme.isnumeric():
     return "num"
   elif lexeme == "true" or lexeme == "false":
-    return lexeme
+    return "logicalValue"
+    #return lexeme
   elif lexeme in compilerLexemesStore[";"]:
     return ";"
   elif lexeme in compilerLexemesStore["="]:
@@ -85,7 +86,7 @@ def analyzeSyntax(filePath):
     lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
     lexemesInLines.append(lexemesInLine)
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
-    ##print(lexemesInLine)
+    print(lexemesInLine)
     if (analyzeResult["state"] == "correct"):
       correctStatements += 1
     if (analyzeResult["state"] == "error"):
@@ -198,12 +199,12 @@ def getTranslatedLexemesInLine(statement):
         lexemeCounterPart["value"] = pythonLexmesTranslationStore[lexeme["value"]]
       else:
         lexemeCounterPart = None
-        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore")
+        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore. Line: " + str(lexeme["line"]))
 
       if lexemeCounterPart is not None:
         translatedLexemesInLine.append(lexemeCounterPart)
   else:
-    error(typesStatement + " not founded in pythonLexmesTranslationStore or its translation is None")
+    error(typesStatement + " not founded in pythonStatementsTranslationStore or its translation is None")
   return translatedLexemesInLine
 
 def getLexemesTokensInLine(statement):    
@@ -248,4 +249,5 @@ if __name__=="__main__":
   * Agregar soporte para for, if/else
     * Hacer la gramatica y agregarla a las tiendas de diccionarios (GUS)
     * Agregar funcionalidad en traduccion de codigo de for, if/else (NAVA)
+  * Soportar sentencias tipo: myAge = myAge + 1;
 """

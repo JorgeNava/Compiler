@@ -1,11 +1,7 @@
-from jgStore import *  
-from helpers import *  
+from jgStore import *
+from helpers import *
 
-statement = [ # Equivalent to lexemesInLine (Just in one line)
-  {
-    "type": "rw",
-    "value": "int"
-  },
+statement = [
   {
     "type": "id",
     "value": "myVar"
@@ -19,12 +15,21 @@ statement = [ # Equivalent to lexemesInLine (Just in one line)
     "value": "8"
   },
   {
+    "type": "op",
+    "value": "/"
+  },
+  {
+    "type": "num",
+    "value": "8"
+  },
+  {
     "type": ";",
     "value": ";"
   },
 ]
 
-# OUTPUT: id = num / myVar = 8
+# INPUT:  rw id op num op / if myAge > 18 {
+# OUTPUT: rw id op num op / if myAge > 18 :
 
 
 def getTranslatedLexemesInLine(statement):
@@ -39,12 +44,12 @@ def getTranslatedLexemesInLine(statement):
         lexemeCounterPart["value"] = pythonLexmesTranslationStore[lexeme["value"]]
       else:
         lexemeCounterPart = None
-        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore")
+        error(lexeme["value"] + " not founded in pythonLexmesTranslationStore. Line: " + str(lexeme["line"]))
 
       if lexemeCounterPart is not None:
         translatedLexemesInLine.append(lexemeCounterPart)
   else:
-    error(typesStatement + " not founded in pythonLexmesTranslationStore")
+    error(typesStatement + " not founded in pythonStatementsTranslationStore or its translation is None")
   return translatedLexemesInLine
 
 def getLexemesTokensInLine(statement):    
@@ -63,5 +68,3 @@ translatedLexemesInLine = getTranslatedLexemesInLine(statement)
 
 log("rawStatement: " + rawStatement)
 log("translatedRawStatement: " + rawTranslatedStatement)
-
-print("codigo.jg".split(".")[0] + ".py")

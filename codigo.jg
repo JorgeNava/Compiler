@@ -1,10 +1,11 @@
 bool OLD;
 int myVar = 21; 
-for int myAge  = 0; myAge <= 100; myAge++ {
+while true {
 	if myAge > 18 {
 		OLD = true;
 		break;
 	} else {
 		OLD = false;
 	}
+	myAge = myAge + 1;
 }
