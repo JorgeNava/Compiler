@@ -1,11 +1,14 @@
 bool OLD;
-int myVar = 21; 
+int myAge = 0;
 while true {
-	if myAge > 18 {
+	print(myAge);
+	if myAge >= 18 {
 		OLD = true;
+		print(OLD);
 		break;
 	} else {
 		OLD = false;
+		print(OLD);
 	}
 	myAge = myAge + 1;
 }

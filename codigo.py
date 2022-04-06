@@ -1,9 +1,11 @@
-myVar = 21
+myAge = 0
 while True :
-	if myAge > 18 :
+	print ( myAge )
+	if myAge >= 18 :
 		OLD = True
+		print ( OLD )
 		break
-		else :
+	else :
 		OLD = False
-		myAge = myAge + 1
-	
+		print ( OLD )
+	myAge = myAge + 1

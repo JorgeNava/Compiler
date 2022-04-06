@@ -9,7 +9,8 @@ compilerLexemesStore = {
   "PR":["const", "int", "float", "char", "string", "bool", "func", "for", "while", "if", "else", "else if"], 
   "op": ["+","-", "*", "/", "%", ">", "<", ">=","<=", "==", "!=", "//", "(", ")"],
   "exceptions": [";", "=", "{", "}", "break"],
-  "logicalValue":["true","false"],
+  "logicalValue": ["true","false"],
+  "builtInFunction": ["print"]
   }
 
 pythonLexmesTranslationStore = {
@@ -25,6 +26,7 @@ pythonLexmesTranslationStore = {
   "break": "break",
   "//": "#",
   "{": ":",
+  "print": "print($$$)",
   # Lexemes where equivalents are the same in Python
   "+": "+",
   "-": "-",
@@ -80,6 +82,9 @@ pythonStatementsTranslationStore = {
   "rw id op num {": "rw id op num :",
   "rw num op id {": "rw num op id :",
   "rw num op num {": "rw num op num:",
+  # Built-in funcitons
+  "builtInFunction op id op ;": "builtInFunction ( id )", 
+  "builtInFunction op num op ;": "builtInFunction ( num )", 
   # Others
   "}": None,
 }
@@ -92,7 +97,8 @@ statementsStore = [
   "rw id = id ;",
   "rw id = id op id ;",
   # break
-  "break ;",
+  "exceptions ;",
+  #"break ;",
   # assignations
   "id = logicalValue ;",
   #for
@@ -100,4 +106,7 @@ statementsStore = [
   # while / if
   "rw id op num {",
   "rw op"
+  # built-in functions
+  "builtInFunctions id",
+  "builtInFunctions num",
 ]

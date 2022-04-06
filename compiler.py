@@ -36,6 +36,8 @@ def getLexemeType(lexeme):
     return "logicalValue"
   elif lexeme in compilerLexemesStore["exceptions"]:
     return lexeme
+  elif lexeme in compilerLexemesStore["builtInFunction"]:
+    return "builtInFunction"
   elif lexeme and lexeme[0].isalpha() and lexeme.isalnum() :
     return "id"
   else:
@@ -55,18 +57,23 @@ def analyzeSyntax(filePath):
     lexemesInLine = []
     actLineNum += 1
     lineIndex = 0
-    for symbol in line:
+    skipNext = False
+    for idx, symbol in enumerate(line):
       lineIndex += 1
-      statement = ""
       formingLexem = formingLexem.strip()
-      if insideString == False: #TO-DO: Implement functionality   
+      if insideString == False and skipNext == False: #TO-DO: Implement functionality   
         if formingLexem not in compilerLexemesStore["PR"] and formingLexem not in compilerLexemesStore["op"]:
           #if symbol in compilerLexemesStore["op"] or symbol == ";" or symbol == "=":
           if symbol in compilerLexemesStore["op"] or symbol in compilerLexemesStore["exceptions"]:
             lexemes.append(getLexemData(formingLexem, actLineNum))    # ADD IDENTIFIERS
             lexemesInLine.append(getLexemData(formingLexem, actLineNum))
-            lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
-            lexemesInLine.append(getLexemData(symbol, actLineNum))
+            if (symbol == ">" or symbol == "<") and line[idx+1] == "=":
+              lexemes.append(getLexemData(symbol + "=", actLineNum))    # ADD OPERATORS
+              lexemesInLine.append(getLexemData(symbol + "=", actLineNum))
+              skipNext = True
+            else:  
+              lexemes.append(getLexemData(symbol, actLineNum))    # ADD OPERATORS
+              lexemesInLine.append(getLexemData(symbol, actLineNum))
             formingLexem = ""
           elif symbol.isspace():
             lexemes.append(getLexemData(formingLexem, actLineNum))
@@ -86,7 +93,10 @@ def analyzeSyntax(filePath):
             formingLexem = ""
           lexemes.append(getLexemData(formingLexem, actLineNum)) # ADD RESERVE WORDS
           lexemesInLine.append(getLexemData(formingLexem, actLineNum))
-          formingLexem = ""  
+          formingLexem = "" 
+      else:
+        skipNext = False
+
     lexemesInLine = [lexeme for lexeme in lexemesInLine if not (lexeme['value'] == "")]
     lexemesInLines.append(lexemesInLine)
     analyzeResult = analyzeStatementSyntax(lexemesInLine)
@@ -98,9 +108,9 @@ def analyzeSyntax(filePath):
       errorLogs.append(analyzeResult)
     if (analyzeResult["state"] == "unidentified"):
       incorrectStatements += 1
-  #print("correctStatements: ",correctStatements)
-  #print("errorStatements: ",errorStatements)
-  #print("unidentifiedStatements: ",incorrectStatements)
+  print("correctStatements: ",correctStatements)
+  print("errorStatements: ",errorStatements)
+  print("unidentifiedStatements: ",incorrectStatements)
 
   # Create error logs file
   f = open("errorLogs.txt","w+")
@@ -201,7 +211,7 @@ def getTranslatedLexemesInLine(statement):
   if typesStatement in pythonStatementsTranslationStore and pythonStatementsTranslationStore[typesStatement] is not None: 
     for lexeme in statement:
       lexemeCounterPart = {"type": lexeme["type"]}
-      if lexeme["type"] in ["id", "num"]:
+      if lexeme["type"] in ["id", "num", "builtInFunction"]:
         lexemeCounterPart["value"] = lexeme["value"]
       elif lexeme["value"] in pythonLexmesTranslationStore:
         lexemeCounterPart["value"] = pythonLexmesTranslationStore[lexeme["value"]]
@@ -225,7 +235,6 @@ def getLexemesTokensInLine(statement):
   return (rawStatement.strip(), typeStatement.strip())
 
 def updateTabsCounter(statement, tabsCounter):
-  print("LOL", statement)
   for lexeme in statement:
     if lexeme["value"] == "{": 
       tabsCounter += 1
@@ -235,10 +244,13 @@ def updateTabsCounter(statement, tabsCounter):
 
 def createFile(filename, fileContentList, tabsInFile):
   f = open(filename,"w+")
+  tabsInNextLine = 0
   for idx, lineContent in enumerate(fileContentList):
-    print(idx, lineContent, tabsInFile[idx])
     if lineContent:
-      content = lineContent + "\n" + ''.join(["\t"*tabsInFile[idx]]) 
+      if lineContent.startswith("else"):
+        content = ''.join(["\t"*(tabsInFile[idx-1]-1)]) + lineContent + "\n"
+      else:
+        content = ''.join(["\t"*(tabsInFile[idx-1])]) + lineContent + "\n"
       f.write(content)
   f.close()
 
@@ -257,16 +269,7 @@ def printLexemesDetailsList(lexemes):
 
 if __name__=="__main__":
   (lexemesInFile, lexemesInLines) = analyzeSyntax("codigo.jg") 
+  #printLexemesDetailsList(lexemesInFile)
   (trasnlatedLexemesInFile, tabsInFile) = translateJGFile(lexemesInLines)
   createFile("codigo.py",trasnlatedLexemesInFile, tabsInFile)
   print("!!! TRANSLATION COMPLETED !!!")
-
-
-"""
-  TBD 
-  * Agregar soporte para tabulaciones basadas en las '{' y sustituir por ':' (NAVA)
-  * Agregar soporte para for, if/else
-    * Hacer la gramatica y agregarla a las tiendas de diccionarios (GUS)
-    * Agregar funcionalidad en traduccion de codigo de for, if/else (NAVA)
-  * Soportar sentencias tipo: myAge = myAge + 1;
-"""

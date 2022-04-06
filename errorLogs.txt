@@ -1,1 +1,7 @@
+> Error:
+Error type: Missing ';' in statement
+Detected Statement:  break ;
+Raw Statement:  break ;
+Line: 8
+
 ~ Happy debugging :D ~

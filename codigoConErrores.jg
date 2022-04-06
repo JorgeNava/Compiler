@@ -1,10 +1,15 @@
-bool OLD
-int myVar 21; 
-while true {
-	if myAge > 18 
+bool OLD;
+int myAge = 0
+while true 
+	if myAge >= 18 {
 		OLD = true;
-		break;
+		break
 	} else {
-		OLD = false;
-	myAge myAge  1;
+		OLD false;
+	}
+	print myAge
+	print(OLD);
+	myAge = myAge 1;
 }
+print(myAge);
+print(OLD);
