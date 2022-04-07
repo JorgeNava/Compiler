@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from PIL import Image, ImageTk
 import subprocess
+import os
 from compiler import *  
 
 
@@ -37,20 +38,32 @@ def save_as():
 
 
 def run():
-    (lexemesInFile, lexemesInLines) = analyzeSyntax(file_path) 
-    trasnlatedLexemesInFile = translateJGFile(lexemesInLines)
-    pythonTranslatedFileName = file_path.split(".")[0] + ".py"
-    createFile(pythonTranslatedFileName,trasnlatedLexemesInFile)
-    if file_path == '':
-        save_prompt = Toplevel()
-        text = Label(save_prompt, text='Please save your code')
-        text.pack()
-        return
-    command = f'python {pythonTranslatedFileName}'
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    output, error = process.communicate()
-    code_output.insert('1.0', output)
-    code_output.insert('1.0',  error)
+    code_output.delete('1.0', END)
+    (lexemesInFile, lexemesInLines, errors, unidentified) = analyzeSyntax(file_path) 
+    if not errors and not unidentified:
+        (trasnlatedLexemesInFile, tabsInFile) = translateJGFile(lexemesInLines)
+        pythonTranslatedFileName = file_path.split(".")[0] + ".py"
+        createFile(pythonTranslatedFileName,trasnlatedLexemesInFile, tabsInFile)
+        print("!!! TRANSLATION COMPLETED !!!")
+        if file_path == '':
+            save_prompt = Toplevel()
+            text = Label(save_prompt, text='Please save your code')
+            text.pack()
+            return
+        command = f'python {pythonTranslatedFileName}'
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        output, error = process.communicate()
+        code_output.insert('1.0', output)
+        code_output.insert('1.0',  error)
+    else:
+        output = "!!! ERROR WHILE ANALYZING CODE !!!\n"
+        output += "Errors in code: " + str(errors) + "\n"
+        output += "Unidentified sentences: " + str(unidentified) + "\n"
+        output += "Error logs file created, please check it."
+        code_output.insert('1.0', output)
+        os.startfile(os.getcwd()+"\errorLogs.txt")
+
+
 
 
 menu_bar = Menu(compiler)

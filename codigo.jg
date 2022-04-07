@@ -2,7 +2,7 @@ bool OLD;
 int myAge = 0;
 while true {
 	print(myAge);
-	if myAge >= 18 {
+	if myAge >= 100 {
 		OLD = true;
 		print(OLD);
 		break;
@@ -12,3 +12,5 @@ while true {
 	}
 	myAge = myAge + 1;
 }
+print(myAge);
+print(OLD);
