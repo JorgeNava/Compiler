@@ -1,13 +1,55 @@
-> Error:
-Error type: Missing ';' in statement
-Detected Statement:  rw id = num
-Raw Statement:  int myAge = 0
-Line: 2
-
-> Error:
-Error type: Missing ';' in statement
-Detected Statement:  break
-Raw Statement:  break
-Line: 6
-
+> Error {
+    "condifence": 0.9166666666666666,
+    "detectedStatement": " rw id = num",
+    "expectedStatement": "rw id = num ;",
+    "line": 2,
+    "message": "Add ';' to position 12 in line 2",
+    "rawStatement": " int myAge = 0",
+    "state": "error"
+}
+> Error {
+    "condifence": 0.9375,
+    "detectedStatement": " rw logicalValue",
+    "expectedStatement": "rw logicalValue {",
+    "line": 3,
+    "message": "Add '{' to position 16 in line 3",
+    "rawStatement": " while true",
+    "state": "error"
+}
+> Error {
+    "condifence": 0.8333333333333334,
+    "detectedStatement": " break",
+    "expectedStatement": "break ;",
+    "line": 6,
+    "message": "Add ';' to position 6 in line 6",
+    "rawStatement": " break",
+    "state": "error"
+}
+> Error {
+    "condifence": 0.9444444444444444,
+    "detectedStatement": " id logicalValue ;",
+    "expectedStatement": "id = logicalValue ;",
+    "line": 8,
+    "message": "Add '=' to position 3 in line 8",
+    "rawStatement": " OLD false ;",
+    "state": "error"
+}
+> Error {
+    "condifence": 0.8181818181818182,
+    "detectedStatement": " builtInFunction id",
+    "expectedStatement": "builtInFunction op id op ;",
+    "line": 10,
+    "message": "Expected statement: 'builtInFunction op id op ;' in line 10",
+    "rawStatement": " print myAge",
+    "state": "error"
+}
+> Error {
+    "condifence": 0.896551724137931,
+    "detectedStatement": " id = id num ;",
+    "expectedStatement": "id = id op num ;",
+    "line": 12,
+    "message": "Expected statement: 'id = id op num ;' in line 12",
+    "rawStatement": " myAge = myAge 1 ;",
+    "state": "error"
+}
 ~ Happy debugging :D ~

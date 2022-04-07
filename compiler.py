@@ -1,6 +1,7 @@
-from difflib import SequenceMatcher
+import json
 from jgStore import *
 from helpers import *
+from analyzer import *
 
 def getJgFileAsCleanedLines(filePath):
     f = open(filePath, "r")
@@ -15,7 +16,8 @@ def getLexemData(lexeme, line):
   }
 
 def formatErrorLog(error):
-  RET_VAL = "> Error:\nError type: " + error["type"] + "\nDetected Statement: " + error["detectedStatement"] + "\nRaw Statement: " + error["rawStatement"]+ "\nLine: " + str(error["line"]) + "\n\n"  
+  RET_VAL = "> Error "
+  RET_VAL +=  dictToFormattedString(error) + "\n"
   return str(RET_VAL)
 
 def getLexemeType(lexeme):
@@ -105,15 +107,10 @@ def analyzeSyntax(filePath):
     if (analyzeResult["state"] == "correct"):
       correctStatements += 1
     if (analyzeResult["state"] == "error"):
-      print("[NAVA] lexemes in line with ERROR: ", lexemesInLine)
-      print(lexemesInLine)
       errorStatements += 1
       errorLogs.append(analyzeResult)
     if (analyzeResult["state"] == "unidentified"):
       incorrectStatements += 1
-  print("correctStatements: ",correctStatements)
-  print("errorStatements: ",errorStatements)
-  print("unidentifiedStatements: ",incorrectStatements)
 
   # Create error logs file
   f = open("errorLogs.txt","w+")
@@ -136,43 +133,27 @@ def analyzeStatementSyntax(lexemesInLine):
         "state": "correct"
     }
   else:
-    #TBD: Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
-    """
-      Definir lista de palabras que pueden ser constantes, si no esta en la
-      lista de statements, buscamos el primer tipo de lexema que encontremos en el statement
-      con el del primero del statement. si no pasamos al siguiente grupo de lexemas-
-      
-      Pasamos de lexema en lexema del statement y descartamos primero viendo si es una constante o no,
-      si no es un tipo de constante (osea un tipo de lexema) entonces buscamosa que tipo de lexema
-      pertenece si existe en alguno entonces es correcto y se procede con el siguiente elemento de la lista de
-      lexemas en el statement.
-    """
-
-
-    # ERRORS DETECTION ZONE
     analysisResult = {
       "state": "error",
       "line": LEXEME_LINE,
       "detectedStatement": statement,
       "rawStatement": rawStatement
     }
-    # Missing ';'
-    if (statement.strip().startswith('break') or statement.strip().startswith("id = false") or statement.strip().startswith("rw id")) and not lexemesInLine[-1]["value"].endswith(";"):
-      analysisResult["type"] = "Missing ';' in statement"
-    # Missing '{'
-    elif ():
-      analysisResult["type"] = "Missing '{' in statement"
-    # Missing '=' in assignations
-    elif ():
-      analysisResult["type"] = "Missing part of assignation statement"
-    # Missing '(' and/or ')' built-in functions
-    elif ():
-      analysisResult["type"] = "Missing '()' in statement"
-    # HERE WE SHOULD SET THE REST OF ERRORS TO RECOGNIZE
+
+    identifiedErrors = identifyError(statement.strip())
+    if identifiedErrors["len"] >= 1:
+      topSimilarStatment = identifiedErrors["possibleStatments"][identifiedErrors["topSimilarStatmentIndex"]]
+      analysisResult["message"] = topSimilarStatment["message"] + " in line " + str(LEXEME_LINE)
+      analysisResult["condifence"] = topSimilarStatment["similarityRatio"]
+      analysisResult["expectedStatement"] = topSimilarStatment["statement"]
     else:
       analysisResult = {
-        "state": "unidentified"
+        "state": "unidentified",
+        "line": LEXEME_LINE,
+        "detectedStatement": statement,
+        "rawStatement": rawStatement
       }
+
   return analysisResult
 
 
@@ -258,9 +239,6 @@ def createFile(filename, fileContentList, tabsInFile):
         content = ''.join(["\t"*(tabsInFile[idx-1])]) + lineContent + "\n"
       f.write(content)
   f.close()
-
-def similar(a, b):
-  return SequenceMatcher(None, a, b).ratio()
 
 # ==========================================================
 # ==========================================================

@@ -14,12 +14,12 @@ def identifyError(statment):
     if similarityRatio >= MINIMUM_SIMILARITY_RATIO:
       for i,s in enumerate(ndiff(statment, correctStatement)):
         if s[0]==' ': continue
-        if s[-1] == " ": 
-          message = "Expected statement: " + correctStatement
+        if s[-1] == " " or abs(len(correctStatement) - len(statment)) >= 4: 
+          message = "Expected statement: '" + correctStatement + "'"
         elif s[0]=='-':
-          message = "Delete " + s[-1] + " from position " + str(i)
+          message = "Delete '" + s[-1] + "' from position " + str(i)
         elif s[0]=='+':
-          message = "Add " + s[-1] + " to position " + str(i)
+          message = "Add '" + s[-1] + "' to position " + str(i)
       for idx, possibleStatments in enumerate(similarStatements):
         if similarityRatio > possibleStatments["similarityRatio"]:
           topSimilarStatmentIndex = len(similarStatements)
@@ -36,19 +36,21 @@ def identifyError(statment):
     "topSimilarStatmentIndex": topSimilarStatmentIndex
   }
 
-testStatements = [
-  "rw id = num",
-  "rw logicalValue",
-  "break",
-  "builtInFunction id",
-  "id = id num ;"
-]
-for statement in testStatements:
-  rslt = identifyError(statement)
-  if rslt["len"] >= 1:
-    print("=====")
-    print("FOR:", statement)
-    print(rslt["possibleStatments"][rslt["topSimilarStatmentIndex"]])
-    print("=====")
-  else:
-    print(">Error: No similar statement founded")
+
+if __name__=="__main__":
+  testStatements = [
+    "rw id = num",
+    "rw logicalValue",
+    "break",
+    "builtInFunction id",
+    "id = id num ;"
+  ]
+  for statement in testStatements:
+    rslt = identifyError(statement)
+    if rslt["len"] >= 1:
+      print("=====")
+      print("FOR:", statement)
+      print(rslt["possibleStatments"][rslt["topSimilarStatmentIndex"]])
+      print("=====")
+    else:
+      print(">Error: No similar statement founded")
