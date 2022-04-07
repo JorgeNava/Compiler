@@ -1,6 +1,6 @@
 bool OLD;
 int myAge = 0
-while true 
+while true
 	if myAge >= 18 {
 		OLD = true;
 		break

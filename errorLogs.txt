@@ -1,7 +1,13 @@
 > Error:
 Error type: Missing ';' in statement
-Detected Statement:  break ;
-Raw Statement:  break ;
-Line: 8
+Detected Statement:  rw id = num
+Raw Statement:  int myAge = 0
+Line: 2
+
+> Error:
+Error type: Missing ';' in statement
+Detected Statement:  break
+Raw Statement:  break
+Line: 6
 
 ~ Happy debugging :D ~

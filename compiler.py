@@ -1,5 +1,6 @@
-from jgStore import *  
-from helpers import *  
+from difflib import SequenceMatcher
+from jgStore import *
+from helpers import *
 
 def getJgFileAsCleanedLines(filePath):
     f = open(filePath, "r")
@@ -104,6 +105,8 @@ def analyzeSyntax(filePath):
     if (analyzeResult["state"] == "correct"):
       correctStatements += 1
     if (analyzeResult["state"] == "error"):
+      print("[NAVA] lexemes in line with ERROR: ", lexemesInLine)
+      print(lexemesInLine)
       errorStatements += 1
       errorLogs.append(analyzeResult)
     if (analyzeResult["state"] == "unidentified"):
@@ -118,23 +121,17 @@ def analyzeSyntax(filePath):
     f.write(formatErrorLog(error))
   f.write("~ Happy debugging :D ~")
   f.close()
-  return ([lexeme for lexeme in lexemes if not (lexeme['value'] == "")], lexemesInLines)
+  return ([lexeme for lexeme in lexemes if not (lexeme['value'] == "")], lexemesInLines, errorStatements, incorrectStatements)
 
 def analyzeStatementSyntax(lexemesInLine):
   statement = ""
   rawStatement = ""
-  # get line statement
-  # STATEMENT EXAMPLE: rw id;
   LEXEME_LINE = lexemesInLine[0]["line"]
   for lexeme in lexemesInLine:
     statement += " "+lexeme["type"]
     rawStatement += " "+lexeme["value"]
 
-  ##print("statement: ",statement)
-
-  #check if statement is in statement list  
-  if statement.strip() in statementsStore:
-    #print("=== MATCHED STATEMENT ===")
+  if statement.strip() in pythonStatementsTranslationStore:
     analysisResult = {
         "state": "correct"
     }
@@ -153,18 +150,26 @@ def analyzeStatementSyntax(lexemesInLine):
 
 
     # ERRORS DETECTION ZONE
-    if (statement.strip().startswith('break') or statement.strip().startswith("id = false") or statement.strip().startswith("rw id")) and not lexemesInLine[-1]["value"].endswith("{"):
-      #print("=== ERROR STATEMENT ===")
-      analysisResult = {
-        "state": "error",
-        "type": "Missing ';' in statement",
-        "line": LEXEME_LINE,
-        "detectedStatement": statement,
-        "rawStatement": rawStatement
-      }
+    analysisResult = {
+      "state": "error",
+      "line": LEXEME_LINE,
+      "detectedStatement": statement,
+      "rawStatement": rawStatement
+    }
+    # Missing ';'
+    if (statement.strip().startswith('break') or statement.strip().startswith("id = false") or statement.strip().startswith("rw id")) and not lexemesInLine[-1]["value"].endswith(";"):
+      analysisResult["type"] = "Missing ';' in statement"
+    # Missing '{'
+    elif ():
+      analysisResult["type"] = "Missing '{' in statement"
+    # Missing '=' in assignations
+    elif ():
+      analysisResult["type"] = "Missing part of assignation statement"
+    # Missing '(' and/or ')' built-in functions
+    elif ():
+      analysisResult["type"] = "Missing '()' in statement"
     # HERE WE SHOULD SET THE REST OF ERRORS TO RECOGNIZE
     else:
-      #print("=== UNIDETIFIED STATEMENT ===")
       analysisResult = {
         "state": "unidentified"
       }
@@ -254,6 +259,9 @@ def createFile(filename, fileContentList, tabsInFile):
       f.write(content)
   f.close()
 
+def similar(a, b):
+  return SequenceMatcher(None, a, b).ratio()
+
 # ==========================================================
 # ==========================================================
 # ====================== MAIN ==============================
@@ -268,8 +276,14 @@ def printLexemesDetailsList(lexemes):
 
 
 if __name__=="__main__":
-  (lexemesInFile, lexemesInLines) = analyzeSyntax("codigo.jg") 
+  (lexemesInFile, lexemesInLines, errors, unidentified) = analyzeSyntax("codigoConErrores.jg") 
   #printLexemesDetailsList(lexemesInFile)
-  (trasnlatedLexemesInFile, tabsInFile) = translateJGFile(lexemesInLines)
-  createFile("codigo.py",trasnlatedLexemesInFile, tabsInFile)
-  print("!!! TRANSLATION COMPLETED !!!")
+  if not errors and not unidentified:
+    (trasnlatedLexemesInFile, tabsInFile) = translateJGFile(lexemesInLines)
+    createFile("codigo.py",trasnlatedLexemesInFile, tabsInFile)
+    print("!!! TRANSLATION COMPLETED !!!")
+  else:
+    print("!!! ERROR WHILE ANALYZING CODE !!!")
+    print("Errors in code: ", errors)
+    print("Unidentified sentences: ", unidentified)
+    print("Error logs file created, please check it.")

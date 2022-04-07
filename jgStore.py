@@ -1,10 +1,3 @@
-"""
-";":[";"],
-"=":["="],
-"{": ["{"],
-"}": ["}"],
-"break":["break"]
-"""
 compilerLexemesStore = {
   "PR":["const", "int", "float", "char", "string", "bool", "func", "for", "while", "if", "else", "else if"], 
   "op": ["+","-", "*", "/", "%", ">", "<", ">=","<=", "==", "!=", "//", "(", ")"],
@@ -66,18 +59,15 @@ pythonStatementsTranslationStore = {
   "id = id op num ;": "id = id op num",
   "id = num op id ;": "id = num op id",
   "id = num op num ;": "id = num op num",
-  # For
-  "for int id = num ; id op = num ; id op op {": "for id in range ( id ) :",
   # Ifs
-  "rw id op num {": "rw id op num :", #if myAge > 18:
+  "rw id op num {": "rw id op num :",
   "rw id op id {": "rw id op id :",
-  "rw logicalValue {": "rw logicalValue :",
   "rw num op num {": "rw num op num :",
   # Else
   "} rw {": "rw :",
   "rw {": "rw :",
   # Whiles
-  "rw logicalValue {": "rw logicalValue :",
+  "rw logicalValue {": "rw logicalValue :", # If or while
   "rw id op id {": "rw id op id :",
   "rw id op num {": "rw id op num :",
   "rw num op id {": "rw num op id :",
@@ -88,25 +78,3 @@ pythonStatementsTranslationStore = {
   # Others
   "}": None,
 }
-
-
-statementsStore = [
-  # declarations
-  "rw id ;",
-  "rw id = num ;",
-  "rw id = id ;",
-  "rw id = id op id ;",
-  # break
-  "exceptions ;",
-  #"break ;",
-  # assignations
-  "id = logicalValue ;",
-  #for
-  "rw rw id = num ; id op = num ; id op op {",
-  # while / if
-  "rw id op num {",
-  "rw op"
-  # built-in functions
-  "builtInFunctions id",
-  "builtInFunctions num",
-]
